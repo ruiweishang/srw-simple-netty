@@ -1,9 +1,15 @@
 # 乞丐版的Netty
 
-Netty是非常值得深入研究的项目，为了防止眼高手低，所以实现了一个乞丐版，用来演示自己在Netty中的一些心得。
+Netty是非常值得深入研究的项目，为了防止眼高手低，所以实现了一个乞丐版，并备注了一些心得。
 **作者能力有限，如果有什么错误的地方，欢迎大家斧正**
 
 ## 为什么要学习Netty
+
+1. 不管公司大小，基本都是分布式的服务，分布式下必须进行网络通信，所以，如果想自己实现一个分布式组件，首先面临的就是网络编程，而Netty作为Java的首推的网络编程框架，怎能不学习一下。
+2. Netty的源码是非常优秀的，非常值得学习研究，比如：对Java的Concurrent包进行扩展，支持了异步事件驱动，其中的Future,Promise，EventExecutorGroup等都是值得和Java Runtime包的源码一起学习对比的优秀设计
+3. Netty底层还是使用的Java原生的Nio类，并没有重复造轮子，但是通过塑造Channel模型（Inbound，Outbound），给我们展示封装的魅力，通过层层封装细节，提供给用户的是一个开箱即用的ServerBootstrap和Bootstrap
+4. Netty提供的Pipeline和ChannelHandler机制，非常优秀，具有极强的扩展性，我们通过此机制可以实现各种业务需求。Netty提供的一些基础扩展，比如：处理半包，沾包的LineBasedFrameDecoder，FixedLengthFrameDecoder等，也是基于此机制
+5. Netty对Buffer的分配策略和Buffer Pool的设计，是对内存分配和复用的方案，也是非常值得学习的
 
 ## Netty基本概念
 
