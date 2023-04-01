@@ -27,7 +27,7 @@ public class Bootstrap extends AbstractBootstrap {
         ChannelPipeline p = channel.pipeline();
 
         // TODO 将handler添加到pipeline，并添加一个可以创建SocketChannel的handler：ServerBootstrapAcceptor
-//        p.addLast();
+        p.addLast(handler);
     }
 
     public ChannelFuture connect(String inetHost, int inetPort) {

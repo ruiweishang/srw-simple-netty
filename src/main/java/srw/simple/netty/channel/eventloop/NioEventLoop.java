@@ -80,7 +80,7 @@ public class NioEventLoop extends SingleThreadEventLoop {
     }
 
     private void processSelectedKey(SelectionKey k, AbstractChannel ch) {
-//        final AbstractChannel.NioUnsafe unsafe = ch.unsafe();
+        final AbstractChannel.AbstractUnsafe unsafe = (AbstractChannel.AbstractUnsafe) ch.unsafe();
 
         try {
             int readyOps = k.readyOps();
@@ -93,8 +93,7 @@ public class NioEventLoop extends SingleThreadEventLoop {
                 ops &= ~SelectionKey.OP_CONNECT;
                 k.interestOps(ops);
 
-                // TODO
-//                unsafe.finishConnect();
+                unsafe.finishConnect();
             }
 
             // Process OP_WRITE first as we may be able to write some queued buffers and so free memory.

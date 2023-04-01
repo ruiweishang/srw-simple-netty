@@ -14,4 +14,10 @@ public interface ChannelHandler {
      */
     void handlerAdded(ChannelHandlerContext ctx) throws Exception;
 
+    /**
+     * TODO 简化实现，直接让每个handler先直接赋值，后期通过反射信息自动判断
+     *
+     * @return
+     */
+    int executionMasks();
 }

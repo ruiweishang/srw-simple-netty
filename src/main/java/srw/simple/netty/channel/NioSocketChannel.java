@@ -7,6 +7,7 @@ import srw.simple.netty.channel.eventloop.ChannelPromise;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 
@@ -37,7 +38,7 @@ public class NioSocketChannel extends AbstractChannel {
 
     @Override
     public Unsafe unsafe() {
-        return null;
+        return super.unsafe;
     }
 
     @Override
@@ -61,11 +62,6 @@ public class NioSocketChannel extends AbstractChannel {
     }
 
     @Override
-    public Channel read() {
-        return null;
-    }
-
-    @Override
     public ChannelFuture write(Object msg, ChannelPromise promise) {
         return null;
     }
@@ -81,16 +77,6 @@ public class NioSocketChannel extends AbstractChannel {
     }
 
     private final class NioSocketChannelUnsafe extends AbstractUnsafe {
-
-        @Override
-        public void bind(SocketAddress localAddress, ChannelPromise promise) {
-
-        }
-
-        @Override
-        public void connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
-
-        }
 
         @Override
         public void beginRead() {

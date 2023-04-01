@@ -84,6 +84,7 @@ public abstract class AbstractBootstrap {
         init(channel);
 
         // 将channel注册到EventLoop中
+        // 注释：group是线程池，group会调用next找一个具体点EventLoop处理register
         return this.group.register(channel);
     }
 }

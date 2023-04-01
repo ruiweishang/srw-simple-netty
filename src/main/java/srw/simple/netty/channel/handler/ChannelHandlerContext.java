@@ -1,7 +1,9 @@
 package srw.simple.netty.channel.handler;
 
+import srw.simple.netty.channel.Channel;
 import srw.simple.netty.channel.ChannelInboundInvoker;
 import srw.simple.netty.channel.ChannelOutboundInvoker;
+import srw.simple.netty.concurrent.executor.EventExecutor;
 
 /**
  * 对应的Netty类：io.netty.channel.ChannelHandlerContext
@@ -11,6 +13,22 @@ import srw.simple.netty.channel.ChannelOutboundInvoker;
  * @author shangruiwei
  * @date 2023/3/26 11:39
  */
-public interface ChannelHandlerContext { //extends ChannelInboundInvoker, ChannelOutboundInvoker {
-    
+public interface ChannelHandlerContext extends ChannelInboundInvoker, ChannelOutboundInvoker {
+
+    /**
+     * 返回context封装的ChannelHandler
+     *
+     * @return
+     */
+    ChannelHandler handler();
+
+    /**
+     * Return the {@link Channel} which is bound to the {@link ChannelHandlerContext}.
+     */
+    Channel channel();
+
+    /**
+     * Returns the {@link EventExecutor} which is used to execute an arbitrary task.
+     */
+    EventExecutor executor();
 }

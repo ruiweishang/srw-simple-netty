@@ -34,6 +34,7 @@ public class NioServerSocketChannel extends AbstractChannel {
 
     @Override
     protected Unsafe newUnsafe() {
+        // NioServer使用的Unsafe
         return new NioMessageUnsafe();
     }
 
@@ -48,22 +49,12 @@ public class NioServerSocketChannel extends AbstractChannel {
     }
 
     @Override
-    public ChannelFuture bind(SocketAddress socketAddress, ChannelPromise promise) {
-        return null;
-    }
-
-    @Override
     public ChannelFuture connect(SocketAddress remoteAddress, ChannelPromise promise) {
         return null;
     }
 
     @Override
     public ChannelFuture connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
-        return null;
-    }
-
-    @Override
-    public Channel read() {
         return null;
     }
 
@@ -83,21 +74,6 @@ public class NioServerSocketChannel extends AbstractChannel {
     }
 
     private final class NioMessageUnsafe extends AbstractUnsafe {
-
-        @Override
-        public void bind(SocketAddress localAddress, ChannelPromise promise) {
-
-        }
-
-        @Override
-        public void connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
-
-        }
-
-        @Override
-        public void beginRead() {
-
-        }
 
         @Override
         public void write(Object msg, ChannelPromise promise) {
