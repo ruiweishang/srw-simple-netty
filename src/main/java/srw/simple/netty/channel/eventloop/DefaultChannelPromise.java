@@ -40,7 +40,7 @@ public class DefaultChannelPromise extends DefaultPromise<Void> implements Chann
     @Override
     public boolean trySuccess() {
         super.trySuccess(null);
-        return false;
+        return true;
     }
 
     @Override

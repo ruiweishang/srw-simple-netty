@@ -5,6 +5,7 @@ import srw.simple.netty.channel.handler.DefaultChannelPipeline;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +33,7 @@ public abstract class AbstractChannel implements Channel {
     private volatile SocketAddress remoteAddress;
     private volatile EventLoop eventLoop;
 
-//    private final DefaultChannelPromise closeFuture = new DefaultChannelPromise();
+    private final DefaultChannelPromise closeFuture;
 
     // Java的Nio类
     private final SelectableChannel ch;
@@ -53,6 +54,8 @@ public abstract class AbstractChannel implements Channel {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        closeFuture = new DefaultChannelPromise(this, null);
     }
 
     @Override
@@ -61,9 +64,18 @@ public abstract class AbstractChannel implements Channel {
     }
 
     @Override
+    public EventLoop eventLoop() {
+        return eventLoop;
+    }
+
+    @Override
     public Channel read() {
         pipeline.read();
         return this;
+    }
+
+    protected SelectableChannel javaChannel() {
+        return ch;
     }
 
     /**
@@ -72,6 +84,8 @@ public abstract class AbstractChannel implements Channel {
      * @return
      */
     protected abstract Unsafe newUnsafe();
+
+    protected abstract void doWrite(ByteBuffer in) throws Exception;
 
     @Override
     public ChannelFuture bind(SocketAddress localAddress, ChannelPromise promise) {
@@ -88,6 +102,11 @@ public abstract class AbstractChannel implements Channel {
         return pipeline.connect(remoteAddress, localAddress, promise);
     }
 
+    @Override
+    public ChannelFuture closeFuture() {
+        return closeFuture;
+    }
+
     protected void doBeginRead() throws Exception {
         // Channel.read() or ChannelHandlerContext.read() was called
         final SelectionKey selectionKey = this.selectionKey;
@@ -102,6 +121,8 @@ public abstract class AbstractChannel implements Channel {
     }
 
     public abstract class AbstractUnsafe implements Unsafe {
+
+        private volatile ByteBuffer outboundBuffer = ByteBuffer.allocate(1000);
 
         @Override
         public final void register(EventLoop eventLoop, final ChannelPromise promise) {
@@ -192,38 +213,16 @@ public abstract class AbstractChannel implements Channel {
 
         @Override
         public final void write(Object msg, ChannelPromise promise) {
-            // TODO
-//            int size;
-//            try {
-//                msg = filterOutboundMessage(msg);
-//                size = pipeline.estimatorHandle().size(msg);
-//                if (size < 0) {
-//                    size = 0;
-//                }
-//            } catch (Throwable t) {
-//                try {
-//                    ReferenceCountUtil.release(msg);
-//                } finally {
-//                    safeSetFailure(promise, t);
-//                }
-//                return;
-//            }
-//
-//            outboundBuffer.addMessage(msg, size, promise);
+            outboundBuffer = ((ByteBuffer) msg);
         }
 
         @Override
         public final void flush() {
-            // TODO
-//            assertEventLoop();
-//
-//            ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;
-//            if (outboundBuffer == null) {
-//                return;
-//            }
-//
-//            outboundBuffer.addFlush();
-//            flush0();
+            try {
+                doWrite(outboundBuffer);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         public void finishConnect() {
@@ -236,10 +235,16 @@ public abstract class AbstractChannel implements Channel {
             pipeline().fireChannelActive();
         }
 
+        public abstract void read();
+
+        public void forceFlush() {
+            flush();
+        }
+
         private void register0(ChannelPromise promise) {
             try {
                 // 使用Java的Nio类，并注册到selector中，并把ServerSocketChannel对象attachment
-                selectionKey = ch.register(((NioEventLoop) eventLoop).selector(), 0, this);
+                selectionKey = ch.register(((NioEventLoop) eventLoop).selector(), 0, AbstractChannel.this);
             } catch (ClosedChannelException e) {
                 e.printStackTrace();
             }

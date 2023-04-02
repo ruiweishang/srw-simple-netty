@@ -65,7 +65,7 @@ public class ServerBootstrap extends AbstractBootstrap {
 
         // 将handler添加到pipeline，并添加一个可以创建SocketChannel的handler：ServerBootstrapAcceptor
         if (super.handler != null) {
-            p.addLast();
+            p.addLast(super.handler);
         }
         // TODO 添加一个特殊的handler，能在收到客户端链接时，创建一个新的SocketChannel
     }

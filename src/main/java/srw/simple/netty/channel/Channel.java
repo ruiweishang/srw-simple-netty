@@ -15,6 +15,8 @@ public interface Channel extends ChannelOutboundInvoker {
 
     Unsafe unsafe();
 
+    EventLoop eventLoop();
+
     /**
      * 返回Channel的Pipeline
      *

@@ -14,10 +14,8 @@ import java.util.concurrent.Executor;
  */
 public abstract class MultithreadEventLoopGroup extends MultithreadEventExecutorGroup implements EventLoopGroup {
 
-    private static final int DEFAULT_EVENT_LOOP_THREADS = 8;
-
     protected MultithreadEventLoopGroup(int nThreads, Object... args) {
-        super(nThreads == 0 ? DEFAULT_EVENT_LOOP_THREADS : nThreads, args);
+        super(nThreads, args);
     }
 
     @Override

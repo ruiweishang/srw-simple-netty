@@ -6,9 +6,13 @@ import srw.simple.netty.channel.eventloop.ChannelPromise;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 对应的Netty类：io.netty.channel.socket.nio.NioServerSocketChannel
@@ -39,22 +43,17 @@ public class NioServerSocketChannel extends AbstractChannel {
     }
 
     @Override
+    protected void doWrite(ByteBuffer in) throws Exception {
+
+    }
+
+    @Override
     public Unsafe unsafe() {
         return super.unsafe;
     }
 
     @Override
     public ByteBufAllocator alloc() {
-        return null;
-    }
-
-    @Override
-    public ChannelFuture connect(SocketAddress remoteAddress, ChannelPromise promise) {
-        return null;
-    }
-
-    @Override
-    public ChannelFuture connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
         return null;
     }
 
@@ -68,21 +67,32 @@ public class NioServerSocketChannel extends AbstractChannel {
         return null;
     }
 
-    @Override
-    public ChannelFuture closeFuture() {
-        return null;
-    }
-
     private final class NioMessageUnsafe extends AbstractUnsafe {
 
-        @Override
-        public void write(Object msg, ChannelPromise promise) {
-
-        }
+        private final List<Object> readBuf = new ArrayList<Object>();
 
         @Override
-        public void flush() {
+        public void read() {
+            final ChannelPipeline pipeline = pipeline();
 
+            SocketChannel ch = null;
+            try {
+                // accept新的client链接
+                ch = ((ServerSocketChannel) javaChannel()).accept();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (ch != null) {
+                // 将accept新的client链接构建NioSocketChannel对象，并缓存在NioMessageUnsafe的readBuf中
+                readBuf.add(new NioSocketChannel(NioServerSocketChannel.this, ch));
+            }
+
+            for (int i = 0; i < readBuf.size(); i++) {
+                pipeline.fireChannelRead(readBuf.get(i));
+            }
+
+            pipeline.fireChannelReadComplete();
         }
     }
 }

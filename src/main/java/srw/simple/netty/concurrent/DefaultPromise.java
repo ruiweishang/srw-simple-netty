@@ -73,7 +73,8 @@ public class DefaultPromise<V> implements Promise<V> {
 
     @Override
     public boolean isSuccess() {
-        return false;
+        Object result = this.result;
+        return result != null && result != UNCANCELLABLE;
     }
 
     @Override
@@ -116,8 +117,15 @@ public class DefaultPromise<V> implements Promise<V> {
 
     @Override
     public Future<V> sync() throws InterruptedException {
-        // TODO
-        return null;
+        if (isDone()) {
+            return this;
+        }
+        synchronized (this) {
+            while (!isDone()) {
+                wait();
+            }
+        }
+        return this;
     }
 
     @Override

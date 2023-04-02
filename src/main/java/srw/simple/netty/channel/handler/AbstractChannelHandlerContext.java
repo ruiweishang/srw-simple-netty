@@ -31,17 +31,21 @@ public abstract class AbstractChannelHandlerContext implements ChannelHandlerCon
         this.pipeline = pipeline;
         this.executor = executor;
         this.name = name;
-        this.executionMask = handler().executionMasks();
+        this.executionMask = mask(handlerClass);
     }
 
     @Override
     public Channel channel() {
-        return null;
+        return pipeline.channel();
     }
 
     @Override
     public EventExecutor executor() {
-        return executor;
+        if (executor == null) {
+            return channel().eventLoop();
+        } else {
+            return executor;
+        }
     }
 
     @Override
@@ -86,6 +90,12 @@ public abstract class AbstractChannelHandlerContext implements ChannelHandlerCon
         return promise;
     }
 
+    @Override
+    public ChannelHandlerContext fireChannelActive() {
+        invokeChannelActive(findContextInbound(MASK_CHANNEL_ACTIVE));
+        return this;
+    }
+
     private void invokeConnect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
         try {
             ((ChannelOutboundHandler) handler()).connect(this, remoteAddress, localAddress, promise);
@@ -99,7 +109,7 @@ public abstract class AbstractChannelHandlerContext implements ChannelHandlerCon
         final AbstractChannelHandlerContext next = findContextOutbound(MASK_READ);
         EventExecutor executor = next.executor();
         try {
-            ((ChannelOutboundHandler) handler()).read(this);
+            ((ChannelOutboundHandler) next.handler()).read(this);
         } catch (Exception e) {
             e.printStackTrace();
         }

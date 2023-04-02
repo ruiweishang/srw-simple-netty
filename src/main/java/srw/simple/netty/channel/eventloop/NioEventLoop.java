@@ -49,7 +49,8 @@ public class NioEventLoop extends SingleThreadEventLoop {
                     runAllTasks();
                 }
                 // 阻塞到有就绪事件了
-                selector.selectNow();
+//                selector.select(3000);
+                selector.select();
                 processSelectedKeysPlain(selector.selectedKeys());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -99,15 +100,13 @@ public class NioEventLoop extends SingleThreadEventLoop {
             // Process OP_WRITE first as we may be able to write some queued buffers and so free memory.
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 // Call forceFlush which will also take care of clear the OP_WRITE once there is nothing left to write
-                // TODO
-//                ch.unsafe().forceFlush();
+                unsafe.forceFlush();
             }
 
             // Also check for readOps of 0 to workaround possible JDK bug which may otherwise lead
             // to a spin loop
             if ((readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 0) {
-                // TODO
-//                unsafe.read();
+                unsafe.read();
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -31,7 +31,8 @@ public class Bootstrap extends AbstractBootstrap {
     }
 
     public ChannelFuture connect(String inetHost, int inetPort) {
-        return connect(InetSocketAddress.createUnresolved(inetHost, inetPort));
+        // return connect(InetSocketAddress.createUnresolved(inetHost, inetPort));
+        return connect(new InetSocketAddress(inetHost, inetPort));
     }
 
     public ChannelFuture connect(SocketAddress remoteAddress) {
@@ -44,14 +45,14 @@ public class Bootstrap extends AbstractBootstrap {
         final ChannelFuture regFuture = initAndRegister();
 
         // connect
-        return this.doResolveAndConnect(regFuture, localAddress);
+        return this.doResolveAndConnect(regFuture, remoteAddress, localAddress);
     }
 
-    private ChannelFuture doResolveAndConnect(ChannelFuture regFuture, final SocketAddress localAddress) {
+    private ChannelFuture doResolveAndConnect(ChannelFuture regFuture, final SocketAddress remoteAddress, final SocketAddress localAddress) {
         // 刚才创建的Channel的引用
         final Channel channel = regFuture.channel();
         // 找一个Executor执行connect
-        EventExecutor eventExecutor = group.next();
+        EventExecutor eventExecutor = regFuture.channel().eventLoop();
         DefaultChannelPromise connectPromise = new DefaultChannelPromise(channel, eventExecutor);
 
         // 将connect的处理，添加到listener，这样，一定是等注册好了，才会执行connect

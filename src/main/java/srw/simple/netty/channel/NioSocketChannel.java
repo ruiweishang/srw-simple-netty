@@ -6,6 +6,7 @@ import srw.simple.netty.channel.eventloop.ChannelPromise;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -27,13 +28,23 @@ public class NioSocketChannel extends AbstractChannel {
         return channel;
     }
 
-    public NioSocketChannel(Channel parent) {
-        super(parent, newChannel(), SelectionKey.OP_READ);
+    public NioSocketChannel() {
+        super(null, newChannel(), SelectionKey.OP_READ);
+    }
+
+    public NioSocketChannel(Channel parent, SocketChannel socket) {
+        super(parent, socket, SelectionKey.OP_READ);
     }
 
     @Override
     protected Unsafe newUnsafe() {
         return new NioSocketChannelUnsafe();
+    }
+
+    @Override
+    protected void doWrite(ByteBuffer in) throws Exception {
+        SocketChannel ch = (SocketChannel) javaChannel();
+        ch.write(in);
     }
 
     @Override
@@ -52,16 +63,6 @@ public class NioSocketChannel extends AbstractChannel {
     }
 
     @Override
-    public ChannelFuture connect(SocketAddress remoteAddress, ChannelPromise promise) {
-        return null;
-    }
-
-    @Override
-    public ChannelFuture connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
-        return null;
-    }
-
-    @Override
     public ChannelFuture write(Object msg, ChannelPromise promise) {
         return null;
     }
@@ -71,26 +72,13 @@ public class NioSocketChannel extends AbstractChannel {
         return null;
     }
 
-    @Override
-    public ChannelFuture closeFuture() {
-        return null;
-    }
-
     private final class NioSocketChannelUnsafe extends AbstractUnsafe {
 
         @Override
-        public void beginRead() {
+        public void read() {
+            final ChannelPipeline pipeline = pipeline();
 
-        }
-
-        @Override
-        public void write(Object msg, ChannelPromise promise) {
-
-        }
-
-        @Override
-        public void flush() {
-
+            // TODO
         }
     }
 }

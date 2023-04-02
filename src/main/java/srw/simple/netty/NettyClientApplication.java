@@ -34,7 +34,7 @@ public class NettyClientApplication {
             // 等待channel关闭，所以主线程会阻塞在这里，而不会结束
             f.channel().closeFuture().sync();
         } catch (Exception e) {
-
+            e.printStackTrace();
         } finally {
             // 优雅结束，释放占用的资源
             group.shutdownGracefully();

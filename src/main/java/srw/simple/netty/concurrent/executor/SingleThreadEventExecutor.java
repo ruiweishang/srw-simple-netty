@@ -17,6 +17,8 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
 
     private final Queue<Runnable> taskQueue;
 
+    private volatile boolean startFlag = false;
+
     private volatile Thread thread;
 
     private final Executor executor;
@@ -49,9 +51,10 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         boolean inEventLoop = inEventLoop();
         // 投递任务
         taskQueue.offer(task);
-        if (!inEventLoop) {
+        if (!startFlag) {
             // 主线程执行，会执行本逻辑，启动新线程执行
             startThread();
+            startFlag = true;
         }
     }
 

@@ -6,6 +6,7 @@ import srw.simple.netty.channel.ChannelOutboundInvoker;
 import srw.simple.netty.channel.ChannelPipeline;
 import srw.simple.netty.channel.eventloop.ChannelFuture;
 import srw.simple.netty.channel.eventloop.ChannelPromise;
+import srw.simple.netty.concurrent.executor.EventExecutor;
 import srw.simple.netty.utils.ObjectUtil;
 
 import java.net.SocketAddress;
@@ -26,6 +27,8 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     private final Channel channel;
     private boolean firstRegistration = true;
 
+    private EventExecutor eventExecutor;
+
     public DefaultChannelPipeline(Channel channel) {
         this.channel = ObjectUtil.checkNotNull(channel, "channel");
 
@@ -38,7 +41,26 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public ChannelPipeline addLast(ChannelHandler... handlers) {
-        return null;
+        ObjectUtil.checkNotNull(handlers, "handlers");
+
+        if (handlers.length > 0) {
+            for (ChannelHandler handler : handlers) {
+                final AbstractChannelHandlerContext newCtx;
+                synchronized (this) {
+                    newCtx = new DefaultChannelHandlerContext(this, eventExecutor, "", handler);
+
+                    AbstractChannelHandlerContext prev = tail.prev;
+                    newCtx.prev = prev;
+                    newCtx.next = tail;
+                    prev.next = newCtx;
+                    tail.prev = newCtx;
+                }
+
+                // TODO 实现HandlerAdded的后续增强处理
+            }
+        }
+
+        return this;
     }
 
     @Override
@@ -122,11 +144,6 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         }
 
         @Override
-        public int executionMasks() {
-            return 0;
-        }
-
-        @Override
         public void channelRegistered(ChannelHandlerContext ctx) {
 
         }
@@ -144,11 +161,6 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         @Override
         public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
 
-        }
-
-        @Override
-        public ChannelInboundInvoker fireChannelActive() {
-            return null;
         }
 
         @Override
@@ -173,7 +185,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public ChannelHandler handler() {
-            return null;
+            return this;
         }
     }
 
@@ -192,13 +204,9 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         }
 
         @Override
-        public int executionMasks() {
-            return 0;
-        }
-
-        @Override
         public void channelRegistered(ChannelHandlerContext ctx) {
             // 调用初始化添加更多的handler
+            ctx.fireChannelRegistered();
         }
 
         @Override
@@ -217,11 +225,6 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         @Override
         public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
 
-        }
-
-        @Override
-        public ChannelInboundInvoker fireChannelActive() {
-            return null;
         }
 
         @Override
@@ -251,7 +254,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public ChannelHandler handler() {
-            return null;
+            return this;
         }
 
         @Override
