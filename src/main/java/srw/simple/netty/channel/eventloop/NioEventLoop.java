@@ -49,9 +49,10 @@ public class NioEventLoop extends SingleThreadEventLoop {
                 if (hasTasks()) {
                     runAllTasks();
                 }
+                LogUtil.log(this.getClass(), String.format("thread:%s select", Thread.currentThread().getName()));
                 // 阻塞到有就绪事件了
-                selector.select(3000);
-//                selector.select();
+//                selector.select(3000);
+                selector.select();
                 processSelectedKeysPlain(selector.selectedKeys());
             } catch (Exception e) {
                 e.printStackTrace();
