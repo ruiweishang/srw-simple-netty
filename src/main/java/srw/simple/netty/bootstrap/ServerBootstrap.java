@@ -6,13 +6,17 @@ import srw.simple.netty.channel.eventloop.ChannelFuture;
 import srw.simple.netty.channel.eventloop.DefaultChannelPromise;
 import srw.simple.netty.channel.eventloop.EventLoopGroup;
 import srw.simple.netty.channel.handler.ChannelHandler;
+import srw.simple.netty.channel.handler.ChannelHandlerContext;
+import srw.simple.netty.channel.handler.ChannelInboundHandler;
 import srw.simple.netty.concurrent.Future;
 import srw.simple.netty.concurrent.GenericFutureListener;
 import srw.simple.netty.concurrent.executor.EventExecutor;
+import srw.simple.netty.utils.LogUtil;
 import srw.simple.netty.utils.ObjectUtil;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Map;
 
 /**
  * 对应的Netty类：io.netty.bootstrap.ServerBootstrap
@@ -65,9 +69,13 @@ public class ServerBootstrap extends AbstractBootstrap {
 
         // 将handler添加到pipeline，并添加一个可以创建SocketChannel的handler：ServerBootstrapAcceptor
         if (super.handler != null) {
+            LogUtil.log(this.getClass(), "初始化server channel，将handler添加到pipeline中");
             p.addLast(super.handler);
         }
-        // TODO 添加一个特殊的handler，能在收到客户端链接时，创建一个新的SocketChannel
+
+        // 添加
+        LogUtil.log(this.getClass(), "初始化server channel，将ServerBootstrapAcceptor添加到pipeline中（此handler用来在server accept一个client，在创建一个channel后，在server channel的readChannel的初始化client channel）");
+        p.addLast(new ServerBootstrapAcceptor(channel, childGroup, childHandler));
     }
 
     /**
@@ -89,22 +97,68 @@ public class ServerBootstrap extends AbstractBootstrap {
         // 刚才创建的Channel的引用
         final Channel channel = regFuture.channel();
         // 找一个Executor执行bind
-        EventExecutor eventExecutor = group.next();
-        DefaultChannelPromise bindPromise = new DefaultChannelPromise(channel, eventExecutor);
+//        EventExecutor eventExecutor = group.next();
+//        DefaultChannelPromise bindPromise = new DefaultChannelPromise(channel, eventExecutor);
+        DefaultChannelPromise bindPromise = new DefaultChannelPromise(channel, null);
         // 将bind的处理，添加到listener，这样，一定是等注册好了，才会执行bind
         regFuture.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
             public void operationComplete(Future<Void> future) {
-                // 判断注册是否成功了
-                if (regFuture.isSuccess()) {
-                    channel.bind(localAddress, bindPromise);
-                } else {
-                    System.out.println("注册失败，不能bind");
-                    // TODO bindPromise.setFailure(regFuture.cause());
-                }
+                // 注释：将bind作为task添加很重要，作为task添加，那会先执行register的所有逻辑后，才会执行bind
+                channel.eventLoop().execute(() -> {
+                    // 判断注册是否成功了
+                    if (regFuture.isSuccess()) {
+                        channel.bind(localAddress, bindPromise);
+                    } else {
+                        System.out.println("注册失败，不能bind");
+                        // TODO bindPromise.setFailure(regFuture.cause());
+                    }
+                });
             }
         });
 
         return bindPromise;
+    }
+
+    private static class ServerBootstrapAcceptor implements ChannelInboundHandler {
+
+        private final EventLoopGroup childGroup;
+        private final ChannelHandler childHandler;
+
+        ServerBootstrapAcceptor(
+                final Channel channel, EventLoopGroup childGroup, ChannelHandler childHandler) {
+            this.childGroup = childGroup;
+            this.childHandler = childHandler;
+        }
+
+        @Override
+        public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+
+        }
+
+        @Override
+        public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+
+        }
+
+        @Override
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
+        }
+
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            final Channel child = (Channel) msg;
+
+            child.pipeline().addLast(childHandler);
+
+            childGroup.register(child);
+            // TODO 处理注册失败
+        }
+
+        @Override
+        public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+
+        }
     }
 }

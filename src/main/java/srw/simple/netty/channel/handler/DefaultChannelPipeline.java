@@ -87,12 +87,14 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public ChannelInboundInvoker fireChannelRead(Object msg) {
-        return null;
+        AbstractChannelHandlerContext.invokeChannelRead(head, msg);
+        return this;
     }
 
     @Override
     public ChannelInboundInvoker fireChannelReadComplete() {
-        return null;
+        AbstractChannelHandlerContext.invokeChannelReadComplete(head);
+        return this;
     }
 
     @Override

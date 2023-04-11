@@ -6,6 +6,7 @@ import srw.simple.netty.channel.eventloop.ChannelFuture;
 import srw.simple.netty.channel.eventloop.DefaultChannelPromise;
 import srw.simple.netty.channel.eventloop.EventLoopGroup;
 import srw.simple.netty.channel.handler.ChannelHandler;
+import srw.simple.netty.utils.LogUtil;
 import srw.simple.netty.utils.ObjectUtil;
 
 import java.net.SocketAddress;
@@ -60,6 +61,7 @@ public abstract class AbstractBootstrap {
      */
     Channel createChannel() {
         try {
+            LogUtil.log(this.getClass(), "创建channel");
             return channelClass.newInstance();
         } catch (InstantiationException e) {
             e.printStackTrace();

@@ -20,7 +20,7 @@ public class NettyClientApplication {
 
     public static void main(String[] args) {
         // group用于连接Server后的各种读写和业务逻辑，比如：编解码
-        EventLoopGroup group = new NioEventLoopGroup(8);
+        EventLoopGroup group = new NioEventLoopGroup(1);
 
         try {
             Bootstrap bootstrap = new Bootstrap();

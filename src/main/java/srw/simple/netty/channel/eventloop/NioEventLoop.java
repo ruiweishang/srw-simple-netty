@@ -2,6 +2,7 @@ package srw.simple.netty.channel.eventloop;
 
 import srw.simple.netty.channel.AbstractChannel;
 import srw.simple.netty.channel.NioSocketChannel;
+import srw.simple.netty.utils.LogUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -49,8 +50,8 @@ public class NioEventLoop extends SingleThreadEventLoop {
                     runAllTasks();
                 }
                 // 阻塞到有就绪事件了
-//                selector.select(3000);
-                selector.select();
+                selector.select(3000);
+//                selector.select();
                 processSelectedKeysPlain(selector.selectedKeys());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -85,6 +86,7 @@ public class NioEventLoop extends SingleThreadEventLoop {
 
         try {
             int readyOps = k.readyOps();
+            LogUtil.log(this.getClass(), String.format("thread:%s readyOps:%s", Thread.currentThread().getName(), readyOps));
             // We first need to call finishConnect() before try to trigger a read(...) or write(...) as otherwise
             // the NIO JDK channel implementation may throw a NotYetConnectedException.
             if ((readyOps & SelectionKey.OP_CONNECT) != 0) {

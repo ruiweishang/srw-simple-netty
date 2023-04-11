@@ -225,11 +225,17 @@ public class DefaultPromise<V> implements Promise<V> {
                 } finally {
                     FutureListenerStackDepthThreadLocal.set(stackDepth);
                 }
+                return;
             }
         }
 
         // 如果当前线程不是EventExecutor的执行线程，或者调用栈的深度已经很深，就将listener作为task添加到EventExecutor中
-        safeExecute(executor, this::notifyListenersNow);
+        safeExecute(executor, new Runnable() {
+            @Override
+            public void run() {
+                notifyListenersNow();
+            }
+        });
     }
 
     private void notifyListenersNow() {

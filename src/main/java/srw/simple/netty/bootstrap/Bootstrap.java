@@ -7,6 +7,7 @@ import srw.simple.netty.channel.eventloop.DefaultChannelPromise;
 import srw.simple.netty.concurrent.Future;
 import srw.simple.netty.concurrent.GenericFutureListener;
 import srw.simple.netty.concurrent.executor.EventExecutor;
+import srw.simple.netty.utils.LogUtil;
 import srw.simple.netty.utils.ObjectUtil;
 
 import java.net.InetSocketAddress;
@@ -26,7 +27,7 @@ public class Bootstrap extends AbstractBootstrap {
 
         ChannelPipeline p = channel.pipeline();
 
-        // TODO 将handler添加到pipeline，并添加一个可以创建SocketChannel的handler：ServerBootstrapAcceptor
+        LogUtil.log(this.getClass(), "初始化channel，将handler添加到pipeline中");
         p.addLast(handler);
     }
 
@@ -52,24 +53,26 @@ public class Bootstrap extends AbstractBootstrap {
         // 刚才创建的Channel的引用
         final Channel channel = regFuture.channel();
         // 找一个Executor执行connect
-        EventExecutor eventExecutor = regFuture.channel().eventLoop();
-        DefaultChannelPromise connectPromise = new DefaultChannelPromise(channel, eventExecutor);
+        DefaultChannelPromise connectPromise = new DefaultChannelPromise(channel, channel.eventLoop());
 
         // 将connect的处理，添加到listener，这样，一定是等注册好了，才会执行connect
         regFuture.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
             public void operationComplete(Future<Void> future) {
-                // 判断注册是否成功了
-                if (regFuture.isSuccess()) {
-                    if (localAddress == null) {
-                        channel.connect(remoteAddress, connectPromise);
+                // 注释：将connect作为task添加很重要，作为task添加，那会先执行register的所有逻辑后，才会执行connect
+                channel.eventLoop().execute(() -> {
+                    // 判断注册是否成功了
+                    if (regFuture.isSuccess()) {
+                        if (localAddress == null) {
+                            channel.connect(remoteAddress, connectPromise);
+                        } else {
+                            channel.connect(remoteAddress, localAddress, connectPromise);
+                        }
                     } else {
-                        channel.connect(remoteAddress, localAddress, connectPromise);
+                        System.out.println("注册失败，不能connect");
+                        // TODO bindPromise.setFailure(regFuture.cause());
                     }
-                } else {
-                    System.out.println("注册失败，不能connect");
-                    // TODO bindPromise.setFailure(regFuture.cause());
-                }
+                });
             }
         });
 

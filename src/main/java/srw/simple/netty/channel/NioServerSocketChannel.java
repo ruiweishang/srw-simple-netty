@@ -76,17 +76,19 @@ public class NioServerSocketChannel extends AbstractChannel {
             final ChannelPipeline pipeline = pipeline();
 
             SocketChannel ch = null;
-            try {
-                // accept新的client链接
-                ch = ((ServerSocketChannel) javaChannel()).accept();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            do {
+                try {
+                    // accept新的client链接
+                    ch = ((ServerSocketChannel) javaChannel()).accept();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-            if (ch != null) {
-                // 将accept新的client链接构建NioSocketChannel对象，并缓存在NioMessageUnsafe的readBuf中
-                readBuf.add(new NioSocketChannel(NioServerSocketChannel.this, ch));
-            }
+                if (ch != null) {
+                    // 将accept新的client链接构建NioSocketChannel对象，并缓存在NioMessageUnsafe的readBuf中
+                    readBuf.add(new NioSocketChannel(NioServerSocketChannel.this, ch));
+                }
+            } while (ch != null);
 
             for (int i = 0; i < readBuf.size(); i++) {
                 pipeline.fireChannelRead(readBuf.get(i));

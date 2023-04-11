@@ -78,7 +78,26 @@ public class NioSocketChannel extends AbstractChannel {
         public void read() {
             final ChannelPipeline pipeline = pipeline();
 
-            // TODO
+            ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+
+            int n = 0;
+            int MAX_NUM = 10;
+            int num = 0;
+            do {
+                try {
+                    n = ((SocketChannel) javaChannel()).read(byteBuffer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                num += 1;
+
+                // 已经读到Buffer里了，触发channelRead事件，并且在channelRead的Handler里，自己判断是否已经读完了
+                // 如果代码有问题，一直没有返回读完，最多读MAX_NUM次
+                pipeline.fireChannelRead(byteBuffer);
+            } while (n > 0 || num >= MAX_NUM);
+
+            // 触发读完事件
+            pipeline.fireChannelReadComplete();
         }
     }
 }

@@ -107,14 +107,17 @@ public abstract class AbstractChannelHandlerContext implements ChannelHandlerCon
     @Override
     public ChannelHandlerContext read() {
         final AbstractChannelHandlerContext next = findContextOutbound(MASK_READ);
-        EventExecutor executor = next.executor();
+        next.invokeRead();
+
+        return this;
+    }
+
+    private void invokeRead() {
         try {
-            ((ChannelOutboundHandler) next.handler()).read(this);
+            ((ChannelOutboundHandler) handler()).read(this);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return this;
     }
 
     @Override
@@ -197,6 +200,50 @@ public abstract class AbstractChannelHandlerContext implements ChannelHandlerCon
                     next.invokeChannelActive();
                 }
             });
+        }
+    }
+
+    static void invokeChannelRead(final AbstractChannelHandlerContext next, Object msg) {
+        EventExecutor executor = next.executor();
+        if (executor.inEventLoop()) {
+            next.invokeChannelRead(msg);
+        } else {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    next.invokeChannelRead(msg);
+                }
+            });
+        }
+    }
+
+    private void invokeChannelRead(Object msg) {
+        try {
+            ((ChannelInboundHandler) handler()).channelRead(this, msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void invokeChannelReadComplete(final AbstractChannelHandlerContext next) {
+        EventExecutor executor = next.executor();
+        if (executor.inEventLoop()) {
+            next.invokeChannelReadComplete();
+        } else {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    next.invokeChannelReadComplete();
+                }
+            });
+        }
+    }
+
+    private void invokeChannelReadComplete() {
+        try {
+            ((ChannelInboundHandler) handler()).channelReadComplete(this);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

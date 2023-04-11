@@ -2,6 +2,7 @@ package srw.simple.netty.channel;
 
 import srw.simple.netty.channel.eventloop.*;
 import srw.simple.netty.channel.handler.DefaultChannelPipeline;
+import srw.simple.netty.utils.LogUtil;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -163,7 +164,7 @@ public abstract class AbstractChannel implements Channel {
 
             try {
                 ((SocketChannel) ch).connect(remoteAddress);
-                // 注册Connect事件，使用NioEventLoop处理，NioEventLoop会调用unsafe.finishConnect，会执行active事件
+                // 向selector注册Connect事件，使用NioEventLoop处理，NioEventLoop会调用unsafe.finishConnect，会执行active事件
                 selectionKey.interestOps(SelectionKey.OP_CONNECT);
 
                 // 简化处理，设置connect成功
@@ -252,6 +253,7 @@ public abstract class AbstractChannel implements Channel {
             // TODO 这里执行ChannelHandler的handlerAdded是可以对pipeline添加ChannelHandler，比如：ChannelInitializer之所以能添加多个就是此机制
             // pipeline.invokeHandlerAddedIfNeeded();
 
+            LogUtil.log(this.getClass(), "register到selector成功");
             // 设置注册成功，设置后，main线程就能获取到注册成功的结果了
             promise.trySuccess();
 

@@ -25,7 +25,7 @@ public class NettyServerApplication {
         // 作为Server，bossGroup用于接收client的连接，并负责处理多路复用器(selector)中的各种就绪事件
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         // workGroup用于处理某个和Client连接的各种读写和业务逻辑，比如：编解码
-        EventLoopGroup workGroup = new NioEventLoopGroup(8);
+        EventLoopGroup workGroup = new NioEventLoopGroup(1);
 
         try {
             ServerBootstrap serverBootstrap = (ServerBootstrap) ServerBootstrap.create()

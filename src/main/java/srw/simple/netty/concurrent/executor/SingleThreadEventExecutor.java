@@ -51,7 +51,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         boolean inEventLoop = inEventLoop();
         // 投递任务
         taskQueue.offer(task);
-        if (!startFlag) {
+        if (!inEventLoop) {
             // 主线程执行，会执行本逻辑，启动新线程执行
             startThread();
             startFlag = true;
@@ -63,6 +63,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             @Override
             public void run() {
                 // 启动新线程执行了
+                thread = Thread.currentThread();
                 SingleThreadEventExecutor.this.run();
             }
         });
