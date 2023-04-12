@@ -28,16 +28,6 @@ public class DefaultChannelHandlerContext extends AbstractChannelHandlerContext 
     }
 
     @Override
-    public ChannelInboundInvoker fireChannelRead(Object msg) {
-        return null;
-    }
-
-    @Override
-    public ChannelInboundInvoker fireChannelReadComplete() {
-        return null;
-    }
-
-    @Override
     public ChannelInboundInvoker fireChannelWritabilityChanged() {
         return null;
     }

@@ -1,6 +1,6 @@
 # 乞丐版的Netty
 
-**本项目现在的实现情况：并未完全完成，目前仅实现了Server的Register，Bind，Client的Connect，Active，启动Server和Client可以运行起来，不过Read，Write还未完成，所以暂时不能读写，大概还有1天的工作量**
+**本项目现在的实现情况：并未完全完成，目前仅实现了Server的Register，Bind，Client的Connect，Active，启动Server和Client可以运行起来，不过Read，Write开发完成，还未debug通过**
 
 Netty是非常值得深入研究的项目，为了防止眼高手低，所以实现了一个乞丐版，并备注了一些心得。
 **作者能力有限，如果有什么错误的地方，欢迎大家斧正**

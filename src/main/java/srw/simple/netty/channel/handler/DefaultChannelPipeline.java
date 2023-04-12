@@ -171,16 +171,6 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         }
 
         @Override
-        public ChannelInboundInvoker fireChannelRead(Object msg) {
-            return null;
-        }
-
-        @Override
-        public ChannelInboundInvoker fireChannelReadComplete() {
-            return null;
-        }
-
-        @Override
         public ChannelInboundInvoker fireChannelWritabilityChanged() {
             return null;
         }
@@ -221,12 +211,12 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
+            ctx.fireChannelRead(msg);
         }
 
         @Override
         public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-
+            ctx.fireChannelReadComplete();
         }
 
         @Override
@@ -235,22 +225,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         }
 
         @Override
-        public ChannelInboundInvoker fireChannelRead(Object msg) {
-            return null;
-        }
-
-        @Override
-        public ChannelInboundInvoker fireChannelReadComplete() {
-            return null;
-        }
-
-        @Override
         public ChannelInboundInvoker fireChannelWritabilityChanged() {
-            return null;
-        }
-
-        @Override
-        public ChannelFuture write(Object msg, ChannelPromise promise) {
             return null;
         }
 

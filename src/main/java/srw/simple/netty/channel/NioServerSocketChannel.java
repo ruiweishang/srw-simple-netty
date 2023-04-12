@@ -3,6 +3,7 @@ package srw.simple.netty.channel;
 import srw.simple.netty.buffer.ByteBufAllocator;
 import srw.simple.netty.channel.eventloop.ChannelFuture;
 import srw.simple.netty.channel.eventloop.ChannelPromise;
+import srw.simple.netty.utils.LogUtil;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -79,6 +80,7 @@ public class NioServerSocketChannel extends AbstractChannel {
             do {
                 try {
                     // accept新的client链接
+                    LogUtil.log(this.getClass(), String.format("Thread:%s ServerSocketChannel accept一个SocketChannel", Thread.currentThread().getName()));
                     ch = ((ServerSocketChannel) javaChannel()).accept();
                 } catch (IOException e) {
                     e.printStackTrace();

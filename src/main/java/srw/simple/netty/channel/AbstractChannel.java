@@ -255,6 +255,12 @@ public abstract class AbstractChannel implements Channel {
 
             LogUtil.log(this.getClass(), "register到selector成功");
             // 设置注册成功，设置后，main线程就能获取到注册成功的结果了
+            try {
+                // TODO 由于NioEventLoop的run方法对任务和nio任务调度策略太简单，此处先用最简单的sleep，保证main线程会把connect加到addListener中，否则会被select阻塞
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             promise.trySuccess();
 
             // 执行注册的pipeline

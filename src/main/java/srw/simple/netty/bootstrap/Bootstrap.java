@@ -1,5 +1,6 @@
 package srw.simple.netty.bootstrap;
 
+import srw.simple.netty.business.ClientChannelHandler;
 import srw.simple.netty.channel.Channel;
 import srw.simple.netty.channel.ChannelPipeline;
 import srw.simple.netty.channel.eventloop.ChannelFuture;
@@ -29,6 +30,7 @@ public class Bootstrap extends AbstractBootstrap {
 
         LogUtil.log(this.getClass(), "初始化channel，将handler添加到pipeline中");
         p.addLast(handler);
+        p.addLast(new ClientChannelHandler());
     }
 
     public ChannelFuture connect(String inetHost, int inetPort) {
@@ -61,6 +63,7 @@ public class Bootstrap extends AbstractBootstrap {
             public void operationComplete(Future<Void> future) {
                 // 注释：将connect作为task添加很重要，作为task添加，那会先执行register的所有逻辑后，才会执行connect
                 channel.eventLoop().execute(() -> {
+                    LogUtil.log(this.getClass(), "reg operationComplete");
                     // 判断注册是否成功了
                     if (regFuture.isSuccess()) {
                         if (localAddress == null) {

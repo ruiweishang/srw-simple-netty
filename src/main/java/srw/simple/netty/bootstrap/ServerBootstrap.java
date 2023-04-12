@@ -1,5 +1,6 @@
 package srw.simple.netty.bootstrap;
 
+import srw.simple.netty.business.ServerChannelHandler;
 import srw.simple.netty.channel.Channel;
 import srw.simple.netty.channel.ChannelPipeline;
 import srw.simple.netty.channel.eventloop.ChannelFuture;
@@ -72,6 +73,7 @@ public class ServerBootstrap extends AbstractBootstrap {
             LogUtil.log(this.getClass(), "初始化server channel，将handler添加到pipeline中");
             p.addLast(super.handler);
         }
+        p.addLast(new ServerChannelHandler());
 
         // 添加
         LogUtil.log(this.getClass(), "初始化server channel，将ServerBootstrapAcceptor添加到pipeline中（此handler用来在server accept一个client，在创建一个channel后，在server channel的readChannel的初始化client channel）");
@@ -148,9 +150,10 @@ public class ServerBootstrap extends AbstractBootstrap {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            LogUtil.log(this.getClass(), "ServerBootstrapAcceptor channelRead");
             final Channel child = (Channel) msg;
 
-            child.pipeline().addLast(childHandler);
+//            child.pipeline().addLast(childHandler);
 
             childGroup.register(child);
             // TODO 处理注册失败

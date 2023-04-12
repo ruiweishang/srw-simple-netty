@@ -38,11 +38,11 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
     public MultithreadEventExecutorGroup(int nThreads, Object... args) {
         children = new EventExecutor[nThreads];
 
-        ThreadPerTaskExecutor executor = new ThreadPerTaskExecutor();
+//        ThreadPerTaskExecutor executor = new ThreadPerTaskExecutor();
 
         for (int i = 0; i < nThreads; i++) {
             try {
-                children[i] = newChild(executor, args);
+                children[i] = newChild(null, args);
             } catch (Exception e) {
                 e.printStackTrace();
             }

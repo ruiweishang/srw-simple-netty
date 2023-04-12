@@ -96,6 +96,18 @@ public abstract class AbstractChannelHandlerContext implements ChannelHandlerCon
         return this;
     }
 
+    @Override
+    public ChannelHandlerContext fireChannelRead(final Object msg) {
+        invokeChannelRead(findContextInbound(MASK_CHANNEL_READ), msg);
+        return this;
+    }
+
+    @Override
+    public ChannelHandlerContext fireChannelReadComplete() {
+        invokeChannelReadComplete(findContextInbound(MASK_CHANNEL_READ_COMPLETE));
+        return this;
+    }
+
     private void invokeConnect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
         try {
             ((ChannelOutboundHandler) handler()).connect(this, remoteAddress, localAddress, promise);
@@ -132,7 +144,7 @@ public abstract class AbstractChannelHandlerContext implements ChannelHandlerCon
         final AbstractChannelHandlerContext next = findContextOutbound(MASK_FLUSH);
         EventExecutor executor = next.executor();
 
-        invokeFlush0();
+        next.invokeFlush0();
 
         return this;
     }
