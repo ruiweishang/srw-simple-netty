@@ -31,12 +31,13 @@ public class ServerChannelHandler implements ChannelInboundHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof ByteBuffer) {
-            ByteBuffer byteBuffer = (ByteBuffer) msg;
-            byteBuffer.flip();
-            byte[] bytes = new byte["hello world".getBytes(StandardCharsets.UTF_8).length];
-            byteBuffer.get(bytes);
+            ByteBuffer readBuffer = (ByteBuffer) msg;
+            readBuffer.flip();
+            byte[] bytes = new byte[readBuffer.remaining()];
+            readBuffer.get(bytes);
             LogUtil.log(this.getClass(), String.format("server 收到的信息：%s", new String(bytes, StandardCharsets.UTF_8)));
         }
+        ctx.fireChannelRead(msg);
     }
 
     @Override

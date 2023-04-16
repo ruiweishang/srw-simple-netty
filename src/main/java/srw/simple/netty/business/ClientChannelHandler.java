@@ -26,9 +26,15 @@ public class ClientChannelHandler implements ChannelInboundHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ByteBuffer byteBuffer = ByteBuffer.wrap("hello world".getBytes(StandardCharsets.UTF_8));
-        ctx.write(byteBuffer, new DefaultChannelPromise(ctx.channel(), ctx.channel().eventLoop()));
-        ctx.flush();
+        while (true) {
+            byte[] bytes = "hello world".getBytes(StandardCharsets.UTF_8);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(bytes.length);
+            byteBuffer.put(bytes);
+            ctx.write(byteBuffer, new DefaultChannelPromise(ctx.channel(), ctx.channel().eventLoop()));
+            ctx.flush();
+
+            Thread.sleep(5000);
+        }
     }
 
     @Override

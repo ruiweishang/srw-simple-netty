@@ -266,6 +266,9 @@ public abstract class AbstractChannel implements Channel {
             // 执行注册的pipeline
             pipeline.fireChannelRegistered();
 
+            if (isActive()) {
+                pipeline.fireChannelActive();
+            }
             // 这里也省略了isActive后，pipeline.fireChannelActive()的实现，看NioServerSocketChannel的isActive方法，需要Java的
             // channel是open，并且socket是绑定的，所以此处正常不会active
             // NioServerSocketChannel的isActive方法内容：isOpen() && javaChannel().socket().isBound();

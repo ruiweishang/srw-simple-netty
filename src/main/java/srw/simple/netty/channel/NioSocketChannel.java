@@ -11,6 +11,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author shangruiwei
@@ -44,6 +45,10 @@ public class NioSocketChannel extends AbstractChannel {
     @Override
     protected void doWrite(ByteBuffer in) throws Exception {
         SocketChannel ch = (SocketChannel) javaChannel();
+        in.flip();
+//        byte[] bytes = new byte[in.remaining()];
+//        in.get(bytes);
+//        System.out.println("doWrite test " + new String(bytes, StandardCharsets.UTF_8));
         ch.write(in);
     }
 
@@ -70,6 +75,12 @@ public class NioSocketChannel extends AbstractChannel {
     @Override
     public Channel flush() {
         return null;
+    }
+
+    @Override
+    public boolean isActive() {
+        SocketChannel ch = (SocketChannel) javaChannel();
+        return ch.isOpen() && ch.isConnected();
     }
 
     private final class NioSocketChannelUnsafe extends AbstractUnsafe {

@@ -34,6 +34,8 @@ public interface Channel extends ChannelOutboundInvoker {
 
     ChannelFuture closeFuture();
 
+    boolean isActive();
+
     interface Unsafe {
 
         void register(EventLoop eventLoop, ChannelPromise promise);

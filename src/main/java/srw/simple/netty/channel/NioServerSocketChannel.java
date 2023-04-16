@@ -68,6 +68,12 @@ public class NioServerSocketChannel extends AbstractChannel {
         return null;
     }
 
+    @Override
+    public boolean isActive() {
+        ServerSocketChannel ch = (ServerSocketChannel) javaChannel();
+        return ch.isOpen() && ch.socket().isBound();
+    }
+
     private final class NioMessageUnsafe extends AbstractUnsafe {
 
         private final List<Object> readBuf = new ArrayList<Object>();
