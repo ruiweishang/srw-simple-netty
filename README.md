@@ -9,7 +9,7 @@ Netty是非常值得深入研究的项目，为了防止眼高手低，所以实
 2. Netty的源码是非常优秀的，非常值得学习研究，比如：对Java的Concurrent包进行扩展，支持了异步事件驱动，其中的Future,Promise，EventExecutorGroup等都是值得和Java Runtime包的源码一起学习对比的优秀设计
 3. Netty底层还是使用的Java原生的Nio类，并没有重复造轮子，但是通过塑造Channel模型（Inbound，Outbound），给我们展示封装的魅力，通过层层封装细节，提供给用户的是一个开箱即用的ServerBootstrap和Bootstrap
 4. Netty提供的Pipeline和ChannelHandler机制，非常优秀，具有极强的扩展性，我们通过此机制可以实现各种业务需求。Netty提供的一些基础扩展，比如：处理半包，沾包的LineBasedFrameDecoder，FixedLengthFrameDecoder等，也是基于此机制
-5. Netty对Buffer的分配策略和Buffer Pool的设计，是对内存分配和复用的方案，也是非常值得学习的
+5. Netty对Buffer的分配策略和Buffer Pool的设计，是对内存分配和复用的方案，也是非常值得学习的 
 
 ## Netty基本概念
 
